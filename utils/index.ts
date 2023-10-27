@@ -1,5 +1,8 @@
 import type { Line } from "~/types";
 
+export const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
 export const chunk = <T>(array: T[], size: number) => {
   const chunked_arr = [];
   let index = 0;

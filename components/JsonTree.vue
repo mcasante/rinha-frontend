@@ -8,5 +8,5 @@ defineProps<{
 </script>
 
 <template>
-  <virtualized-list :items="data" :itemHeight="20" :componentId="JsonLine" />
+  <virtualized-list :items="data" :itemHeight="24" :componentId="JsonLine" />
 </template>

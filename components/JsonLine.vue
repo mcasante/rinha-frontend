@@ -11,16 +11,15 @@ const key = computed(() => props.data.key.split(":"));
 <template>
   <div class="flex items-stretch">
     <div class="offset" :style="{ width: data.level * 20 + 'px' }" />
-    <span class="text-teal-600 font-light">
+    <span class="whitespace-nowrap text-teal-600 font-light shrink-0">
       <span
         :class="{ 'text-orange-200': isClosing, 'font-semibold': isClosing }"
       >
-        {{ key[0] }}
-        <span v-show="!isClosing">:</span>
+        {{ key[0] }}<span v-show="!isClosing">:</span>
         <span class="font-semibold text-orange-200">&nbsp;{{ key[1] }}</span>
       </span>
     </span>
-    <span clas="font-light"> {{ data.value }}</span>
+    <span class="font-light whitespace-nowrap"> {{ data.value }}</span>
   </div>
 </template>
 
@@ -36,5 +35,6 @@ const key = computed(() => props.data.key.split(":"));
   background-position: -20px 0;
   background-size: 21px;
   background-repeat: repeat-x;
+  flex-shrink: 0;
 }
 </style>
