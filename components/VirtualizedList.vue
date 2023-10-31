@@ -7,6 +7,8 @@ import {
   useKeyModifier,
 } from "@vueuse/core";
 
+import type { JsonData } from "~/types";
+
 import { clamp } from "~/utils";
 
 const emit = defineEmits<{
@@ -15,10 +17,11 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   items: any[];
-  itemsLength: number;
   itemHeight: number;
   componentId: any;
 }>();
+
+const jsonData = useState<JsonData>("jsonData");
 
 const scrollThumb = ref<HTMLElement | null>(null);
 const scrollBar = ref<HTMLElement | null>(null);
@@ -44,7 +47,7 @@ const itemPerScreen = computed(() =>
   Math.ceil(availableHeight.value / props.itemHeight)
 );
 
-const totalHeight = computed(() => props.itemsLength * props.itemHeight);
+const totalHeight = computed(() => jsonData.value.length * props.itemHeight);
 
 const start = computed(() =>
   Math.floor(currentScroll.value / props.itemHeight)
@@ -58,11 +61,8 @@ watch(currentScroll, () => {
 });
 
 const updateScroll = (value: number) => {
-  currentScroll.value = clamp(
-    value,
-    0,
-    totalHeight.value - availableHeight.value
-  );
+  const newVal = clamp(value, 0, totalHeight.value - availableHeight.value);
+  currentScroll.value = newVal;
 };
 
 let interval: ReturnType<typeof setInterval>;
@@ -138,8 +138,8 @@ onKeyStroke(digits, (e) => {
     return;
   }
 
-  if (number > props.itemsLength) {
-    typed.value = props.itemsLength.toString().split("");
+  if (number > jsonData.value.length) {
+    typed.value = jsonData.value.length.toString().split("");
     return;
   }
 
@@ -147,10 +147,10 @@ onKeyStroke(digits, (e) => {
 });
 
 onMounted(() => {
-  document.addEventListener("wheel", (e) => {
+  document.onwheel = (e) => {
     if (thumbPressed.value) return;
     updateScroll(currentScroll.value + e.deltaY);
-  });
+  };
 
   type MoveEvent = MouseEvent & TouchEvent;
   let prevY = 0;
@@ -167,18 +167,18 @@ onMounted(() => {
     prevY = currentY || prevY;
   };
 
-  document.addEventListener("mousemove", (e) => handleMove(e as MoveEvent));
-  document.addEventListener("touchmove", (e) => handleMove(e as MoveEvent));
+  document.onmousemove = (e) => handleMove(e as MoveEvent);
+  document.ontouchmove = (e) => handleMove(e as MoveEvent);
 
-  document.addEventListener("touchstart", (e) => {
+  document.ontouchstart = (e) => {
     prevY = e.touches[0].clientY;
-  });
+  };
 });
 
 const style = computed(() => ({
   itemHeight: `${props.itemHeight}px`,
   containerHeight: `${availableHeight.value}px`,
-  scrollThumbOffset: `${(start.value / props.itemsLength) * 100}%`,
+  scrollThumbOffset: `${(start.value / jsonData.value.length) * 100}%`,
 }));
 </script>
 

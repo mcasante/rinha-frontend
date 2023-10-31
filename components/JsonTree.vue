@@ -23,7 +23,7 @@ onMounted(() => {
     const { data, length } = event.data;
 
     jsonData.value.data = data;
-    if (length !== jsonData.value.length) jsonData.value.length = length;
+    jsonData.value.length = length;
   });
 
   handleScroll({ position: 0, limit: 100 });
@@ -33,7 +33,6 @@ onMounted(() => {
 <template>
   <virtualized-list
     :items="jsonData.data"
-    :items-length="jsonData.length"
     :itemHeight="jsonData.itemHeight"
     :componentId="JsonLine"
     @scroll="throttledScroll"
