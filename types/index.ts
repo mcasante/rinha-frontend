@@ -3,3 +3,9 @@ export type Line = {
   value?: string;
   level: number;
 };
+
+export type JsonData = {
+  data: Line[];
+  length: number;
+  itemHeight: number;
+};

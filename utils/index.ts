@@ -13,6 +13,16 @@ export const throttle = (fn: Function, delay: number) => {
   };
 };
 
+export const debounce = (fn: Function, delay: number) => {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+};
+
 export const chunk = <T>(array: T[], size: number) => {
   const chunked_arr = [];
   let index = 0;

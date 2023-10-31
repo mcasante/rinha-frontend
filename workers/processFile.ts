@@ -40,7 +40,6 @@ self.addEventListener("message", (event: MessageEvent<Params>) => {
         length: processedData.length,
       });
     } catch (error) {
-      console.log(error);
       self.postMessage({
         error: true,
       });

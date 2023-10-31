@@ -25,7 +25,7 @@ const scrollBar = ref<HTMLElement | null>(null);
 const upButton = ref<HTMLElement | null>(null);
 const downButton = ref<HTMLElement | null>(null);
 
-const currentScroll = ref(1);
+const currentScroll = useState<number>("virtualScroll", () => 1);
 
 const meta = useKeyModifier("Meta");
 const { pressed: thumbPressed } = useMousePressed({ target: scrollThumb });
@@ -103,12 +103,47 @@ watchEffect(() => {
 const speed = computed(() =>
   meta.value ? itemPerScreen.value * props.itemHeight : props.itemHeight * 2
 );
+
 onKeyStroke("ArrowUp", () => {
   updateScroll(currentScroll.value - speed.value);
 });
 
 onKeyStroke("ArrowDown", () => {
   updateScroll(currentScroll.value + speed.value);
+});
+
+const actions = ["Enter", "Backspace", "Escape"];
+const digits = "1234567890".split("").concat(actions);
+
+const typed = ref<string[]>([]);
+
+onKeyStroke(digits, (e) => {
+  if (typed.value.length === 0 && actions.includes(e.key)) return;
+
+  if (e.key === "Backspace") {
+    typed.value.pop();
+    return;
+  }
+
+  if (e.key === "Escape") {
+    typed.value = [];
+    return;
+  }
+
+  const number = Number(typed.value.join(""));
+
+  if (e.key === "Enter") {
+    updateScroll((number - 1) * props.itemHeight);
+    typed.value = [];
+    return;
+  }
+
+  if (number > props.itemsLength) {
+    typed.value = props.itemsLength.toString().split("");
+    return;
+  }
+
+  typed.value.push(e.key);
 });
 
 onMounted(() => {
@@ -180,9 +215,31 @@ const style = computed(() => ({
       ↓
     </button>
   </div>
+  <Teleport to="body">
+    <div
+      v-if="typed.length"
+      class="z-30 absolute top-0 h-full w-full flex justify-center items-center bg-black/5"
+    >
+      <div class="bg-white text-center shadow-lg rounded-md px-4 pt-2 pb-6">
+        <span class="text-10 font-bold" v-text="typed.join('')" />
+        <div class="flex justify-end gap-2 mt-4">
+          <kbd
+            class="bg-zinc-100 mr-2 text-zinc-800 font-bold lh-4 py-1 px-2 border-zinc-400 border rounded shadow px-1"
+          >
+            esc - Clear
+          </kbd>
+          <kbd
+            class="bg-zinc-100 mr-2 text-zinc-800 font-bold lh-4 py-1 px-2 border-zinc-400 border rounded shadow px-1"
+          >
+            Enter - Jump2 to line</kbd
+          >
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   height: v-bind("style.containerHeight");
 }

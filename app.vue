@@ -6,15 +6,19 @@ import { useConfirmDialog, onKeyStroke } from "@vueuse/core";
 const { isRevealed, reveal, confirm } = useConfirmDialog();
 
 onKeyStroke("Escape", confirm);
-onKeyStroke("h", reveal);
+onKeyStroke("h", () => (isRevealed.value ? confirm() : reveal()));
 
 const shortcuts = [
-  { keys: ["h"], description: "Opens the shortcut modal" },
+  { keys: ["h"], description: "Toggles the shortcut modal" },
   { keys: ["esc"], description: "Closes the shortcut modal" },
   { keys: ["ArrowUp"], description: "Scrolls up" },
   { keys: ["ArrowDown"], description: "Scrolls down" },
   { keys: ["Meta", "ArrowDown"], description: "Scrolls up faster" },
   { keys: ["Meta", "ArrowUp"], description: "Scrolls down faster" },
+  {
+    keys: ["Any Number"],
+    description: "Try start typing :)",
+  },
 ];
 
 useHead({

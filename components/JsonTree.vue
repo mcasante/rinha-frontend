@@ -1,14 +1,16 @@
 <script lang="ts" setup>
-import type { Line } from "~/types";
+import type { JsonData } from "~/types";
 import JsonLine from "./JsonLine.vue";
 
 const props = defineProps<{
   worker: Worker;
 }>();
 
-const jsonData = ref<Line[]>([]);
-const jsonLength = ref(0);
-const itemHeight = ref(24);
+const jsonData = useState<JsonData>("jsonData", () => ({
+  data: [],
+  length: 0,
+  itemHeight: 24,
+}));
 
 const handleScroll = (value: { position: number; limit: number }) => {
   props.worker.postMessage(value);
@@ -20,8 +22,8 @@ onMounted(() => {
   props.worker.addEventListener("message", (event) => {
     const { data, length } = event.data;
 
-    jsonData.value = data;
-    if (length !== jsonLength.value) jsonLength.value = length;
+    jsonData.value.data = data;
+    if (length !== jsonData.value.length) jsonData.value.length = length;
   });
 
   handleScroll({ position: 0, limit: 100 });
@@ -30,9 +32,9 @@ onMounted(() => {
 
 <template>
   <virtualized-list
-    :items="jsonData"
-    :items-length="jsonLength"
-    :itemHeight="itemHeight"
+    :items="jsonData.data"
+    :items-length="jsonData.length"
+    :itemHeight="jsonData.itemHeight"
     :componentId="JsonLine"
     @scroll="throttledScroll"
   />
