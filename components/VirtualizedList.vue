@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { useWindowSize, useMousePressed, useMouse } from "@vueuse/core";
+import {
+  useWindowSize,
+  useMousePressed,
+  useMouse,
+  onKeyStroke,
+  useKeyModifier,
+} from "@vueuse/core";
+
 import { clamp } from "~/utils";
 
 const emit = defineEmits<{
@@ -20,6 +27,7 @@ const downButton = ref<HTMLElement | null>(null);
 
 const currentScroll = ref(1);
 
+const meta = useKeyModifier("Meta");
 const { pressed: thumbPressed } = useMousePressed({ target: scrollThumb });
 const { pressed: scrollBarPressed } = useMousePressed({ target: scrollBar });
 const { pressed: upPressed } = useMousePressed({ target: upButton });
@@ -67,7 +75,7 @@ watchEffect(() => {
   const upOrDown = upPressed.value ? -1 : 1;
 
   interval = setInterval(() => {
-    updateScroll(currentScroll.value + 50 * upOrDown);
+    updateScroll(currentScroll.value + props.itemHeight * upOrDown);
   }, 50);
 });
 
@@ -90,6 +98,17 @@ watchEffect(() => {
 
     updateScroll(currentScroll.value + toMove / 2);
   }, 50);
+});
+
+const speed = computed(() =>
+  meta.value ? itemPerScreen.value * props.itemHeight : props.itemHeight * 2
+);
+onKeyStroke("ArrowUp", () => {
+  updateScroll(currentScroll.value - speed.value);
+});
+
+onKeyStroke("ArrowDown", () => {
+  updateScroll(currentScroll.value + speed.value);
 });
 
 onMounted(() => {
@@ -132,7 +151,7 @@ const style = computed(() => ({
   <div class="flex overflow-hidden py-4 px-4 gap-2 relative items-start">
     <div class="virtual-scroll select-none">
       <div ref="scrollBar" class="scrollbar">
-        <button ref="scrollThumb" class="thumb fixed" />
+        <div ref="scrollThumb" class="thumb fixed" />
       </div>
     </div>
     <div class="container overflow-hidden overflow-x-scroll">
