@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FileWorker from "~/workers/processFile?worker";
+import { useWindowSize } from "@vueuse/core";
 
 useHead({
   htmlAttrs: {
@@ -12,6 +13,11 @@ useSeoMeta({
   description:
     "Simple JSON viewer that runs completly on-client. No data exchange",
 });
+
+const { height } = useWindowSize();
+const containerHeight = computed(() =>
+  isFinite(height.value) ? height.value + "px" : "80vh"
+);
 
 const selectedFile = ref<File | null>(null);
 const status = ref<"idle" | "loading" | "error">("idle");
@@ -52,9 +58,12 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="md:h-100vh h-80vh flex justify-center items-center">
+  <div
+    :style="{ height: containerHeight }"
+    class="flex justify-center items-center"
+  >
     <div
-      class="mx-auto max-w-xl container h-full relative"
+      class="mx-auto max-w-5xl shadow-xl px-4 container h-auto min-h-full relative"
       v-if="selectedFile?.name && isIdle"
     >
       <header class="z-10 flex sticky top-0 bg-white items-center gap-4 py-4">
@@ -68,10 +77,11 @@ const clear = () => {
       </header>
       <JsonTree v-if="fileWorker" :worker="fileWorker" />
     </div>
-    <div v-else class="text-center flex flex-col gap-4">
-      <h1 class="text-10">JSON Tree Viewer</h1>
-      <h2 class="font-light">
-        Simple JSON viewer that runs completly on-client. No data exchange
+    <div v-else class="text-center">
+      <h1 class="text-10 mb-4">JSON Tree Viewer</h1>
+      <h2 class="font-light mb-8">
+        Simple JSON viewer that runs completly on-client<br />
+        No data exchange
       </h2>
 
       <FileLoader :disabled="isLoading" @change="updateFile">

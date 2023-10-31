@@ -57,6 +57,9 @@ export const processData = (data: Record<string, unknown>, level = 0) => {
     }
   };
 
-  processLine(data, level);
+  const isArray = Array.isArray(data);
+  lines.push({ key: isArray ? "[" : "{", level });
+  processLine(data, level + 1);
+  lines.push({ key: isArray ? "]" : "}", level });
   return lines;
 };

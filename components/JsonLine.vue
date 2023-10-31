@@ -5,7 +5,10 @@ const props = defineProps<{
   data: Line;
   index: number;
 }>();
+
 const isClosing = computed(() => ["}", "]"].includes(props.data.key));
+const isOpening = computed(() => ["{", "["].includes(props.data.key));
+const isNumber = computed(() => !isNaN(Number(props.data.key.split(":")[0])));
 const key = computed(() => props.data.key.split(":"));
 </script>
 
@@ -20,9 +23,12 @@ const key = computed(() => props.data.key.split(":"));
     <div class="offset" :style="{ width: data.level * 20 + 'px' }" />
     <span class="whitespace-nowrap text-teal-600 font-light shrink-0">
       <span
-        :class="{ 'text-orange-200': isClosing, 'font-semibold': isClosing }"
+        :class="{
+          'text-orange-200 font-semibold': isClosing || isOpening,
+          'text-stone-400': isNumber,
+        }"
       >
-        {{ key[0] }}<span v-show="!isClosing">:</span>
+        {{ key[0] }}<span v-show="!isClosing && !isOpening">:</span>
         <span class="font-semibold text-orange-200">&nbsp;{{ key[1] }}</span>
       </span>
     </span>

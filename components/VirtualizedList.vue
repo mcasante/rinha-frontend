@@ -29,7 +29,7 @@ const { height: screenHeight, width } = useWindowSize();
 const { y } = useMouse();
 
 const availableHeight = computed(
-  () => screenHeight.value - (width.value <= 768 ? 200 : 100)
+  () => screenHeight.value - (width.value <= 768 ? 190 : 120)
 );
 
 const itemPerScreen = computed(() =>
@@ -135,7 +135,7 @@ const style = computed(() => ({
         <button ref="scrollThumb" class="thumb fixed" />
       </div>
     </div>
-    <div class="container">
+    <div class="container overflow-hidden overflow-x-scroll">
       <template v-for="n in itemPerScreen" :key="n">
         <component
           v-if="props.items[n - 1]"
