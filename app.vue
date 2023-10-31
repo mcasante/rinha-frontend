@@ -5,6 +5,8 @@ import { useConfirmDialog, onKeyStroke } from "@vueuse/core";
 
 const { isRevealed, reveal, confirm } = useConfirmDialog();
 
+const currentScroll = useState<number>("virtualScroll", () => 1);
+
 onKeyStroke("Escape", confirm);
 onKeyStroke("h", () => (isRevealed.value ? confirm() : reveal()));
 
@@ -73,6 +75,9 @@ const clear = () => {
   if (!fileWorker.value) return;
   fileWorker.value.postMessage({ clear: true });
   selectedFile.value = null;
+
+  status.value = "idle";
+  currentScroll.value = 1;
 };
 </script>
 
@@ -113,7 +118,9 @@ const clear = () => {
       <FileLoader :disabled="isLoading" @change="updateFile">
         {{ isLoading ? "loading..." : "Load JSON" }}
       </FileLoader>
-      <div v-if="hasError" class="text-red-500">Error while loading file</div>
+      <div v-if="hasError" class="text-red-500 mt-2">
+        Error while loading file
+      </div>
     </div>
   </div>
   <teleport to="body">
