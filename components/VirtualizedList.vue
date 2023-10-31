@@ -231,7 +231,7 @@ const style = computed(() => ({
           <kbd
             class="bg-zinc-100 mr-2 text-zinc-800 font-bold lh-4 py-1 px-2 border-zinc-400 border rounded shadow px-1"
           >
-            Enter - Jump2 to line</kbd
+            Enter - Jump to line</kbd
           >
         </div>
       </div>
