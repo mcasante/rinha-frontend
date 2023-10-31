@@ -3,14 +3,6 @@ import type { Line } from "~/types";
 export const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-export const debounce = (fn: Function, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-};
-
 export const throttle = (fn: Function, delay: number) => {
   let lastCall = 0;
   return (...args: any[]) => {
