@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import FileWorker from "~/workers/processFile?worker";
 
+useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
+});
+
+useSeoMeta({
+  title: "JSON Tree Viewer",
+  description:
+    "Simple JSON viewer that runs completly on-client. No data exchange",
+});
+
 const selectedFile = ref<File | null>(null);
 const status = ref<"idle" | "loading" | "error">("idle");
 
@@ -57,7 +69,7 @@ const clear = () => {
       <JsonTree v-if="fileWorker" :worker="fileWorker" />
     </div>
     <div v-else class="text-center flex flex-col gap-4">
-      <h1 class="text-10">JSON Three Viewer</h1>
+      <h1 class="text-10">JSON Tree Viewer</h1>
       <h2 class="font-light">
         Simple JSON viewer that runs completly on-client. No data exchange
       </h2>
