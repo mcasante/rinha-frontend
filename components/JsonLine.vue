@@ -12,7 +12,7 @@ const key = computed(() => props.data.key.split(":"));
 <template>
   <div class="flex items-stretch">
     <div
-      class="shrink-0 text-3 text-gray-400 w-20 pr-4 text-right"
+      class="shrink-0 text-3 text-gray-400 w-20 pr-4 text-right select-none"
       v-if="index !== null && index >= 0"
     >
       {{ index }}

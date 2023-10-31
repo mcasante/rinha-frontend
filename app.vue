@@ -40,12 +40,12 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="min-h-100vh flex justify-center items-center">
+  <div class="md:h-100vh h-80vh flex justify-center items-center">
     <div
-      class="mx-auto max-w-xl container relative"
+      class="mx-auto max-w-xl container h-full relative"
       v-if="selectedFile?.name && isIdle"
     >
-      <header class="flex sticky top-0 bg-white items-center gap-4 py-4">
+      <header class="z-10 flex sticky top-0 bg-white items-center gap-4 py-4">
         <button
           class="b-none text-8 hover:cursor-pointer flex items-center bg-transparent"
           @click="clear"
