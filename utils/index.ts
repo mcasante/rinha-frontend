@@ -3,6 +3,24 @@ import type { Line } from "~/types";
 export const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
+export const debounce = (fn: Function, delay: number) => {
+  let timer: any;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
+
+export const throttle = (fn: Function, delay: number) => {
+  let lastCall = 0;
+  return (...args: any[]) => {
+    const now = new Date().getTime();
+    if (now - lastCall < delay) return;
+    lastCall = now;
+    return fn(...args);
+  };
+};
+
 export const chunk = <T>(array: T[], size: number) => {
   const chunked_arr = [];
   let index = 0;
@@ -13,13 +31,13 @@ export const chunk = <T>(array: T[], size: number) => {
   return chunked_arr;
 };
 
-export const parseLines = (data: Record<string, unknown>, level = 0) => {
+export const processData = (data: Record<string, unknown>, level = 0) => {
   const lines: Line[] = [];
 
   const formatValue = (str: string) =>
     typeof str === "string" ? `"${str}"` : String(str);
 
-  const parseLine = (data: Record<string, unknown>, level: number) => {
+  const processLine = (data: Record<string, unknown>, level: number) => {
     for (const key in data) {
       const entry = { key, value: "", level };
 
@@ -39,7 +57,7 @@ export const parseLines = (data: Record<string, unknown>, level = 0) => {
       }
 
       lines.push(entry);
-      parseLine(data[key] as Record<string, unknown>, level + 1);
+      processLine(data[key] as Record<string, unknown>, level + 1);
 
       if (!data[key]) continue;
 
@@ -47,6 +65,6 @@ export const parseLines = (data: Record<string, unknown>, level = 0) => {
     }
   };
 
-  parseLine(data, level);
+  processLine(data, level);
   return lines;
 };

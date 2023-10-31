@@ -1,39 +1,60 @@
 <script setup lang="ts">
-import type { Line } from "~/types";
-const jsonLines = ref<Line[]>([]);
+import FileWorker from "~/workers/processFile?worker";
 
-const updateJson = (data: Record<string, unknown>) => {
-  const parsed = parseLines(data);
-  jsonLines.value = parsed;
+const selectedFile = ref<File | null>(null);
+const status = ref<"idle" | "loading" | "error">("idle");
+
+const isLoading = computed(() => status.value === "loading");
+const hasError = computed(() => status.value === "error");
+const isIdle = computed(() => status.value === "idle");
+
+const fileWorker = ref<Worker>();
+
+const updateFile = (data: File) => {
+  if (!fileWorker.value) return;
+
+  status.value = "loading";
+  fileWorker.value.postMessage({ file: data });
+
+  selectedFile.value = data;
+};
+
+onMounted(() => {
+  if (window.Worker) {
+    if (!(fileWorker instanceof Worker)) {
+      fileWorker.value = new FileWorker();
+
+      fileWorker.value.addEventListener("message", (event) => {
+        const { error } = event.data;
+        status.value = error ? "error" : "idle";
+      });
+    }
+  }
+});
+
+const clear = () => {
+  if (!fileWorker.value) return;
+  fileWorker.value.postMessage({ clear: true });
+  selectedFile.value = null;
 };
 </script>
 
 <template>
   <div class="min-h-100vh flex justify-center items-center">
-    <div class="mx-auto max-w-xl container relative" v-if="jsonLines.length">
-      <header class="flex sticky top-0 bg-white items-center gap-2 py-4">
+    <div
+      class="mx-auto max-w-xl container relative"
+      v-if="selectedFile?.name && isIdle"
+    >
+      <header class="flex sticky top-0 bg-white items-center gap-4 py-4">
         <button
-          class="b-none hover:cursor-pointer flex items-center bg-transparent"
-          @click="jsonLines = []"
+          class="b-none text-8 hover:cursor-pointer flex items-center bg-transparent"
+          @click="clear"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 inline-block mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
+          ←
         </button>
-        <h1>File name</h1>
+        <h1 v-text="selectedFile!.name" />
       </header>
-      <JsonTree :data="jsonLines" />
+      <JsonTree v-if="fileWorker" :worker="fileWorker" />
     </div>
     <div v-else class="text-center flex flex-col gap-4">
       <h1 class="text-10">JSON Three Viewer</h1>
@@ -41,7 +62,10 @@ const updateJson = (data: Record<string, unknown>) => {
         Simple JSON viewer that runs completly on-client. No data exchange
       </h2>
 
-      <FileLoader @change="updateJson" />
+      <FileLoader :disabled="isLoading" @change="updateFile">
+        {{ isLoading ? "loading..." : "Load JSON" }}
+      </FileLoader>
+      <div v-if="hasError" class="text-red-500">Error while loading file</div>
     </div>
   </div>
 </template>

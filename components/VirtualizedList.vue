@@ -2,8 +2,13 @@
 import { useWindowSize, useMousePressed } from "@vueuse/core";
 import { clamp } from "~/utils";
 
+const emit = defineEmits<{
+  (e: "scroll", value: { position: number; limit: number }): void;
+}>();
+
 const props = defineProps<{
   items: any[];
+  itemsLength: number;
   itemHeight: number;
   componentId: any;
 }>();
@@ -18,17 +23,21 @@ const itemPerScreen = computed(() =>
   Math.ceil(availableHeight.value / props.itemHeight)
 );
 
-const totalHeight = computed(() => props.items.length * props.itemHeight);
+const totalHeight = computed(() => props.itemsLength * props.itemHeight);
 
 const style = computed(() => ({
   itemHeight: `${props.itemHeight}px`,
 }));
 
-const currentData = computed(() => {
-  const start = Math.floor(currentScroll.value / props.itemHeight);
-  const end = start + itemPerScreen.value * 2;
+const start = computed(() =>
+  Math.floor(currentScroll.value / props.itemHeight)
+);
 
-  return props.items.slice(start, end);
+watch(currentScroll, () => {
+  emit("scroll", {
+    position: start.value,
+    limit: itemPerScreen.value + 1,
+  });
 });
 
 const updateScroll = (value: number) => {
@@ -52,7 +61,6 @@ onMounted(() => {
 
     if (pressed.value) {
       const percentage = deltaY / availableHeight.value;
-      console.log(currentScroll.value * percentage);
       updateScroll(currentScroll.value + totalHeight.value * percentage);
     }
 
@@ -62,7 +70,7 @@ onMounted(() => {
 
 const currentScrollPercentage = computed(() => {
   const start = Math.floor(currentScroll.value / props.itemHeight);
-  return (start / props.items.length) * 100;
+  return (start / props.itemsLength) * 100;
 });
 const scrollThumbOffset = computed(() => `${currentScrollPercentage.value}%`);
 </script>
@@ -77,10 +85,11 @@ const scrollThumbOffset = computed(() => `${currentScrollPercentage.value}%`);
     <div class="container">
       <template v-for="n in itemPerScreen" :key="n">
         <component
+          v-if="props.items[n - 1]"
           class="item"
-          v-if="currentData[n - 1]"
           :is="componentId"
-          :data="currentData[n - 1]"
+          :index="start + n"
+          :data="props.items[n - 1]"
         />
       </template>
     </div>

@@ -3,6 +3,7 @@ import type { Line } from "~/types";
 
 const props = defineProps<{
   data: Line;
+  index: number;
 }>();
 const isClosing = computed(() => ["}", "]"].includes(props.data.key));
 const key = computed(() => props.data.key.split(":"));
@@ -10,6 +11,12 @@ const key = computed(() => props.data.key.split(":"));
 
 <template>
   <div class="flex items-stretch">
+    <div
+      class="shrink-0 text-3 text-gray-400 w-20 pr-4 text-right"
+      v-if="index !== null && index >= 0"
+    >
+      {{ index }}
+    </div>
     <div class="offset" :style="{ width: data.level * 20 + 'px' }" />
     <span class="whitespace-nowrap text-teal-600 font-light shrink-0">
       <span
