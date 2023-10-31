@@ -102,7 +102,7 @@ onMounted(() => {
   let prevY = 0;
 
   const handleMove = (e: MoveEvent) => {
-    const currentY = e?.clientY ? e.clientY : e.touches[0].clientY;
+    const currentY = e?.clientY ? e.clientY : e.touches?.[0].clientY;
 
     if (thumbPressed.value) {
       const deltaY = currentY - prevY;
@@ -110,7 +110,7 @@ onMounted(() => {
       updateScroll(currentScroll.value + totalHeight.value * percentage);
     }
 
-    prevY = currentY;
+    prevY = currentY || prevY;
   };
 
   document.addEventListener("mousemove", (e) => handleMove(e as MoveEvent));
